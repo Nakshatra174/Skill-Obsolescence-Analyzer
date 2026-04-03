@@ -1,0 +1,105 @@
+{% extends 'analyzer/base.html' %}
+
+{% block content %}
+<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<div class="row mb-4 animate__animated animate__fadeIn">
+    <div class="col-md-12 text-center">
+        <h2 class="fw-bold text-dark">Skill Knowledge Graph</h2>
+        <p class="text-muted">Interactive map showing how technical domains and skills are interconnected.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card glass-card shadow-sm border-0" style="height: 650px; position: relative; overflow: hidden; background: #ffffff;">
+            <div id="skill-network" style="height: 100%; width: 100%;"></div>
+            
+            <div class="position-absolute bottom-0 start-0 m-3 p-3 bg-white bg-opacity-90 rounded-4 border small shadow-sm" style="z-index: 10;">
+                <div class="mb-1"><span class="badge bg-primary rounded-circle" style="width:12px; height:12px; display:inline-block;">&nbsp;</span> Domain Hubs</div>
+                <div><span class="badge bg-info rounded-circle" style="width:12px; height:12px; display:inline-block;">&nbsp;</span> Technical Skills</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // 1. Data Definitions
+    var nodes = new vis.DataSet([
+        { id: 1, label: 'Frontend', shape: 'diamond', color: '#0d6efd', size: 30 },
+        { id: 2, label: 'Backend', shape: 'diamond', color: '#6610f2', size: 30 },
+        { id: 3, label: 'Data Science', shape: 'diamond', color: '#0dcaf0', size: 30 },
+        { id: 4, label: 'Mobile', shape: 'diamond', color: '#198754', size: 30 },
+        { id: 5, label: 'DevOps', shape: 'diamond', color: '#ffc107', size: 30 },
+
+        { id: 11, label: 'React', group: 'skill' }, { id: 12, label: 'Vue.js', group: 'skill' },
+        { id: 13, label: 'Angular', group: 'skill' }, { id: 14, label: 'TypeScript', group: 'skill' },
+        { id: 21, label: 'Django', group: 'skill' }, { id: 22, label: 'Node.js', group: 'skill' },
+        { id: 23, label: 'Spring Boot', group: 'skill' }, { id: 24, label: 'FastAPI', group: 'skill' },
+        { id: 31, label: 'Python', group: 'skill' }, { id: 32, label: 'TensorFlow', group: 'skill' },
+        { id: 33, label: 'Pandas', group: 'skill' }, { id: 34, label: 'PyTorch', group: 'skill' },
+        { id: 41, label: 'Flutter', group: 'skill' }, { id: 42, label: 'React Native', group: 'skill' },
+        { id: 43, label: 'Swift', group: 'skill' }
+    ]);
+
+    var edges = new vis.DataSet([
+        { from: 1, to: 11 }, { from: 1, to: 12 }, { from: 1, to: 13 }, { from: 1, to: 14 },
+        { from: 2, to: 21 }, { from: 2, to: 22 }, { from: 2, to: 23 }, { from: 2, to: 24 },
+        { from: 3, to: 31 }, { from: 3, to: 32 }, { from: 3, to: 33 }, { from: 3, to: 34 },
+        { from: 4, to: 41 }, { from: 4, to: 42 }, { from: 4, to: 43 },
+        { from: 21, to: 31, label: 'Uses', dashes: true },
+        { from: 11, to: 42, label: 'Foundation', dashes: true }
+    ]);
+
+    // 2. Configuration for Visibility and Auto-Fitting
+    var container = document.getElementById('skill-network');
+    var data = { nodes: nodes, edges: edges };
+    var options = {
+        nodes: {
+            font: { 
+                face: 'Inter', 
+                size: 20, 
+                color: '#1e293b', 
+                strokeWidth: 4, 
+                strokeColor: '#ffffff' 
+            },
+            borderWidth: 2,
+            shadow: true
+        },
+        edges: {
+            width: 2,
+            color: { inherit: 'from', opacity: 0.4 },
+            smooth: { type: 'continuous' }
+        },
+        physics: {
+            enabled: true,
+            forceAtlas2Based: {
+                gravitationalConstant: -150,
+                centralGravity: 0.02,
+                springLength: 120,
+                springConstant: 0.08,
+                avoidOverlap: 1
+            },
+            solver: 'forceAtlas2Based',
+            stabilization: { iterations: 600 }
+        },
+        groups: {
+            skill: { 
+                shape: 'dot', 
+                size: 15, 
+                color: { background: '#ffffff', border: '#0dcaf0' } 
+            }
+        }
+    };
+
+    // 3. Initialize and Fit
+    var network = new vis.Network(container, data, options);
+
+    // This is the "Magic" part that fits everything perfectly after the physics finish
+    network.once("stabilizationIterationsDone", function() {
+        network.fit({
+            animation: { duration: 1000, easingFunction: "easeInQuad" }
+        });
+    });
+</script>
+{% endblock %}

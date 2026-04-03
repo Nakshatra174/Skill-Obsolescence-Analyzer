@@ -1,0 +1,73 @@
+{% extends 'analyzer/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="text-center mb-5">
+            <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2 mb-3">SYSTEM DOCUMENTATION</span>
+            <h1 class="fw-bold text-dark display-4">Technical Methodology</h1>
+            <p class="lead text-secondary">A transparent look into the SkillInsight AI trend-prediction engine.</p>
+        </div>
+
+        <div class="card shadow-lg border-0 overflow-hidden">
+            <div class="row g-0">
+                <div class="col-md-4 bg-primary p-5 text-white d-flex flex-column justify-content-center">
+                    <h3 class="fw-bold mb-4">Core Philosophy</h3>
+                    <p class="opacity-75">In an era of rapid digital transformation, traditional career planning is obsolete. We provide data-driven certainty.</p>
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <span>Data-First Logic</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <span>Time-Series Analysis</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <span>Predictive Modeling</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8 p-5 bg-white">
+                    <h4 class="fw-bold mb-3">The Analysis Algorithm</h4>
+                    <p class="text-muted">Our engine processes historical data points across a 3-year window to calculate the <strong>Weighted Obsolescence Index (WOI)</strong>. The system evaluates three primary metrics:</p>
+                    
+                    <div class="row mt-4 g-4">
+                        <div class="col-sm-6">
+                            <div class="p-3 border rounded-3">
+                                <h6 class="fw-bold text-primary"><i class="bi bi-graph-up me-2"></i>Velocity</h6>
+                                <p class="small mb-0 text-muted">Year-over-Year (YoY) growth in job market listings.</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 border rounded-3">
+                                <h6 class="fw-bold text-primary"><i class="bi bi-pie-chart me-2"></i>Saturation</h6>
+                                <p class="small mb-0 text-muted">Current demand vs. historical peaks to identify decay.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="fw-bold mt-5 mb-3">Technology Stack</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark border px-3 py-2">Python 3.10+</span>
+                        <span class="badge bg-light text-dark border px-3 py-2">Django Framework</span>
+                        <span class="badge bg-light text-dark border px-3 py-2">Pandas Data Library</span>
+                        <span class="badge bg-light text-dark border px-3 py-2">Chart.js Visualization</span>
+                        <span class="badge bg-light text-dark border px-3 py-2">SQLite Engine</span>
+                        <span class="badge bg-light text-dark border px-3 py-2">Bootstrap 5 / TomSelect</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 text-center">
+            <h5 class="fw-bold mb-4">Internal Workflow</h5>
+            
+            <p class="text-muted small mx-auto mt-3" style="max-width: 600px;">
+                The system utilizes a <strong>Model-View-Template (MVT)</strong> architecture. Raw market data is ingested via an ORM, processed through a statistical utility, and rendered using interactive JavaScript components.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

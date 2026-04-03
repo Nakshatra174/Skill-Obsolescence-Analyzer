@@ -1,0 +1,73 @@
+{% extends 'analyzer/base.html' %}
+
+{% block content %}
+<div class="container animate__animated animate__fadeIn">
+    <div class="card glass-card border-0 shadow-sm p-4 p-md-5 mb-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold"><i class="bi bi-intersect text-primary me-2"></i>Dual-Vector Resume Matcher</h2>
+            <p class="text-muted">Compare your skills against a specific Job Description AND 2026 market trends.</p>
+        </div>
+        
+        <form action="{% url 'optimize' %}" method="POST">
+            {% csrf_token %}
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-uppercase text-primary">Your Resume / Skills</label>
+                    <textarea name="resume_text" class="form-control rounded-4 p-3 border-light-subtle shadow-sm" 
+                              rows="10" placeholder="Paste your resume content here..." required>{{ resume_text }}</textarea>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-uppercase text-success">Target Job Description</label>
+                    <textarea name="job_desc" class="form-control rounded-4 p-3 border-light-subtle shadow-sm" 
+                              rows="10" placeholder="Paste the Job Description from LinkedIn/Indeed here..." required>{{ job_desc }}</textarea>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold">
+                    <i class="bi bi-cpu me-2"></i>Analyze Match
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if analysis %}
+    <div class="card glass-card border-0 shadow-sm p-4 p-md-5 animate__animated animate__fadeInUp">
+        <div class="row align-items-center mb-5">
+            <div class="col-md-8">
+                <h4 class="fw-bold mb-0">Analysis Results</h4>
+                <p class="text-muted small mb-0 mt-1">Based on our database of {{ total_count|default:"903" }} tracked skills</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="badge bg-primary fs-5 rounded-pill px-4 py-2 shadow-sm">Match Score: {{ analysis.score }}%</div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <h6 class="text-success small fw-bold text-uppercase mb-3"><i class="bi bi-check-circle-fill me-2"></i>Keywords Found in JD</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for skill in analysis.matches %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill py-2 px-3 fs-6">{{ skill }}</span>
+                    {% empty %}
+                        <span class="text-muted small">No direct matches found.</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h6 class="text-danger small fw-bold text-uppercase mb-3"><i class="bi bi-exclamation-triangle-fill me-2"></i>Critical Gaps for this Role</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for skill in analysis.missing %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill py-2 px-3 fs-6">+ {{ skill }}</span>
+                    {% empty %}
+                        <span class="text-muted small">No gaps detected!</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

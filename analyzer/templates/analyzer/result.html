@@ -1,0 +1,162 @@
+{% extends 'analyzer/base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<div class="row mb-4 animate__animated animate__fadeIn">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <h1 class="fw-bold text-dark">{{ results.skill }} <span class="text-muted fw-light">Intelligence Report</span></h1>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary btn-sm px-3" onclick="window.print()"><i class="bi bi-printer me-2"></i>Print</button>
+            <button class="btn btn-primary btn-sm px-3" id="download-report"><i class="bi bi-download me-2"></i>Export</button>
+        </div>
+    </div>
+</div>
+
+<div id="capture-area" class="row g-4">
+    <div class="col-lg-4">
+        <div class="card glass-card h-100 p-4 border-0 shadow-sm">
+            <div class="mb-4">
+                <h6 class="text-uppercase text-muted small fw-bold mb-1">Obsolescence Risk</h6>
+                <div class="display-5 fw-bold text-dark">{{ results.risk_score }}%</div>
+                <div class="progress mt-2" style="height: 8px; border-radius: 10px;">
+                    <div class="progress-bar {% if results.risk_score > 70 %}bg-danger{% elif results.risk_score > 40 %}bg-warning{% else %}bg-success{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ results.risk_score }}%;"></div>
+                </div>
+            </div>
+            <div>
+                <h6 class="text-uppercase text-muted small fw-bold mb-1">Market Status</h6>
+                <span class="badge {% if results.status == 'Declining' %}bg-danger{% elif results.status == 'Stable' %}bg-warning text-dark{% else %}bg-success{% endif %} fs-6 py-2 px-3 rounded-pill">
+                    {{ results.status }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card glass-card h-100 p-4 border-0 shadow-sm">
+            <h6 class="fw-bold mb-4">Historical Demand & AI Prediction</h6>
+            <div style="height: 300px;">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card glass-card p-4 border-0 shadow-sm mt-2">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h6 class="fw-bold mb-0"><i class="bi bi-cpu text-primary me-2"></i>Explainable AI (XAI) Analysis</h6>
+                <span class="badge bg-light text-dark border">Decision Transparency Engine</span>
+            </div>
+            <p class="small text-muted mb-4">This chart visualizes exactly which factors influenced the AI's final obsolescence risk score. Red bars indicate factors driving the risk <strong>up</strong>, while green bars indicate factors driving the risk <strong>down</strong>.</p>
+            
+            <div style="height: 250px;">
+                <canvas id="xaiChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 1. Growth Prediction Chart ---
+    const historicalYears = {{ results.years|safe|default:"[]" }};
+    const historicalPostings = {{ results.postings|safe|default:"[]" }};
+    const futurePrediction = {{ results.future_prediction|default:"0" }};
+    
+    const combinedLabels = historicalYears.concat([2026]);
+    const combinedData = historicalPostings.concat([futurePrediction]);
+
+    if (historicalYears.length > 0) {
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: combinedLabels,
+                datasets: [{
+                    label: 'Job Postings',
+                    data: combinedData,
+                    borderColor: '#0d6efd',
+                    borderWidth: 4,
+                    pointRadius: 5,
+                    segment: { 
+                        borderDash: (ctx) => ctx.p1DataIndex === historicalYears.length ? [6, 6] : undefined 
+                    },
+                    fill: true,
+                    backgroundColor: 'rgba(13, 110, 253, 0.05)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { border: {display: false}, beginAtZero: true }, 
+                    x: { border: {display: false} } 
+                }
+            }
+        });
+    }
+
+    // --- 2. Explainable AI (XAI) Chart ---
+    const xaiLabels = {{ xai_data.labels|safe|default:"[]" }};
+    const xaiScores = {{ xai_data.impact_scores|safe|default:"[]" }};
+
+    if (xaiLabels.length > 0) {
+        // Dynamically color the bars: Red for positive risk, Green for negative risk
+        const barColors = xaiScores.map(score => score > 0 ? '#dc3545' : '#198754');
+        const borderColors = xaiScores.map(score => score > 0 ? '#b02a37' : '#146c43');
+
+        const xaiCtx = document.getElementById('xaiChart').getContext('2d');
+        new Chart(xaiCtx, {
+            type: 'bar',
+            data: {
+                labels: xaiLabels,
+                datasets: [{
+                    label: 'Impact on Risk Score (%)',
+                    data: xaiScores,
+                    backgroundColor: barColors,
+                    borderColor: borderColors,
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Horizontal bars are standard for XAI
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let val = context.raw;
+                                return val > 0 ? `+${val}% Risk Increase` : `${val}% Risk Decrease`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        title: { display: true, text: 'Impact Weight' }
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // --- 3. Export Functionality ---
+    document.getElementById('download-report').addEventListener('click', function() {
+        html2canvas(document.getElementById('capture-area'), { scale: 2 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Skill_Report_{{ results.skill }}.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    });
+</script>
+{% endblock %}
